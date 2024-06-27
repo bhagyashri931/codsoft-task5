@@ -1,4 +1,7 @@
 Task 5: Contact book
+import tkinter as tk
+from tkinter import simpledialog, messagebox
+
 class ContactBook:
     def __init__(self):
         self.contacts = []
@@ -7,13 +10,11 @@ class ContactBook:
         self.contacts.append({'name': name, 'phone': phone, 'email': email, 'address': address})
 
     def view_contacts(self):
-        for i, contact in enumerate(self.contacts):
-            print(f"{i + 1}. {contact['name']} - {contact['phone']}")
+        return self.contacts
 
     def search_contact(self, search_term):
         results = [contact for contact in self.contacts if search_term.lower() in contact['name'].lower() or search_term in contact['phone']]
-        for result in results:
-            print(result)
+        return results
 
     def update_contact(self, index, name=None, phone=None, email=None, address=None):
         if 0 <= index < len(self.contacts):
@@ -30,36 +31,64 @@ class ContactBook:
         if 0 <= index < len(self.contacts):
             self.contacts.pop(index)
 
-def main():
-    contact_book = ContactBook()
-    while True:
-        print("\n1. Add Contact\n2. View Contacts\n3. Search Contact\n4. Update Contact\n5. Delete Contact\n6. Exit")
-        choice = input("Choose an option: ")
-        if choice == '1':
-            name = input("Enter name: ")
-            phone = input("Enter phone number: ")
-            email = input("Enter email: ")
-            address = input("Enter address: ")
-            contact_book.add_contact(name, phone, email, address)
-        elif choice == '2':
-            contact_book.view_contacts()
-        elif choice == '3':
-            search_term = input("Enter name or phone number to search: ")
-            contact_book.search_contact(search_term)
-        elif choice == '4':
-            index = int(input("Enter contact number to update: ")) - 1
-            name = input("Enter new name (leave blank to keep current): ")
-            phone = input("Enter new phone number (leave blank to keep current): ")
-            email = input("Enter new email (leave blank to keep current): ")
-            address = input("Enter new address (leave blank to keep current): ")
-            contact_book.update_contact(index, name, phone, email, address)
-        elif choice == '5':
-            index = int(input("Enter contact number to delete: ")) - 1
-            contact_book.delete_contact(index)
-        elif choice == '6':
-            break
-        else:
-            print("Invalid option. Please try again.")
+def add_contact_gui():
+    name = simpledialog.askstring("Input", "Enter name:")
+    phone = simpledialog.askstring("Input", "Enter phone number:")
+    email = simpledialog.askstring("Input", "Enter email:")
+    address = simpledialog.askstring("Input", "Enter address:")
+    if name and phone and email and address:
+        contact_book.add_contact(name, phone, email, address)
+        messagebox.showinfo("Info", "Contact added successfully!")
+    else:
+        messagebox.showwarning("Warning", "All fields are required!")
+
+def view_contacts_gui():
+    contacts = contact_book.view_contacts()
+    contacts_str = "\n".join([f"{i + 1}. {contact['name']} - {contact['phone']}" for i, contact in enumerate(contacts)])
+    messagebox.showinfo("Contacts", contacts_str)
+
+def search_contact_gui():
+    search_term = simpledialog.askstring("Input", "Enter name or phone number to search:")
+    results = contact_book.search_contact(search_term)
+    results_str = "\n".join([f"{contact['name']} - {contact['phone']}" for contact in results])
+    messagebox.showinfo("Search Results", results_str if results else "No contacts found.")
+
+def update_contact_gui():
+    index = simpledialog.askinteger("Input", "Enter contact number to update:") - 1
+    if 0 <= index < len(contact_book.contacts):
+        name = simpledialog.askstring("Input", "Enter new name (leave blank to keep current):")
+        phone = simpledialog.askstring("Input", "Enter new phone number (leave blank to keep current):")
+        email = simpledialog.askstring("Input", "Enter new email (leave blank to keep current):")
+        address = simpledialog.askstring("Input", "Enter new address (leave blank to keep current):")
+        contact_book.update_contact(index, name, phone, email, address)
+        messagebox.showinfo("Info", "Contact updated successfully!")
+    else:
+        messagebox.showerror("Error", "Invalid contact number.")
+
+def delete_contact_gui():
+    index = simpledialog.askinteger("Input", "Enter contact number to delete:") - 1
+    if 0 <= index < len(contact_book.contacts):
+        contact_book.delete_contact(index)
+        messagebox.showinfo("Info", "Contact deleted successfully!")
+    else:
+        messagebox.showerror("Error", "Invalid contact number.")
+
+def main_gui():
+    root = tk.Tk()
+    root.title("Contact Book")
+
+    tk.Button(root, text="Add Contact", command=add_contact_gui).pack(pady=10)
+    tk.Button(root, text="View Contacts", command=view_contacts_gui).pack(pady=10)
+    tk.Button(root, text="Search Contact", command=search_contact_gui).pack(pady=10)
+    tk.Button(root, text="Update Contact", command=update_contact_gui).pack(pady=10)
+    tk.Button(root, text="Delete Contact", command=delete_contact_gui).pack(pady=10)
+    tk.Button(root, text="Exit", command=root.quit).pack(pady=10)
+
+    root.mainloop()
 
 if __name__ == "__main__":
-    main()
+    contact_book = ContactBook()
+    main_gui()
+
+            
+       
